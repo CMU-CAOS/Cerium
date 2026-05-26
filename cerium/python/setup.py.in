@@ -1,0 +1,40 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 Siddharth Jayashankar. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
+from setuptools import setup, find_packages
+from setuptools.dist import Distribution
+
+class BinaryDistribution(Distribution):
+    """Distribution which always forces a binary package with platform name"""
+    def has_ext_modules(foo):
+        return True
+
+setup(
+    name='cerium',
+    version='${PROJECT_VERSION}',
+    author='Siddharth Jayashankar',
+    author_email='sidjay@cmu.edu',
+    description='Compiler for the Cerium Framework for Encrypted AI',
+    packages=find_packages(),
+    package_data={
+        'cerium.compiler': ['$<TARGET_FILE_NAME:cerium_compiler_py_${Python3_VERSION_MINOR}>'],
+        'cerium.runtime': ['$<TARGET_FILE_NAME:cerium_runtime_py_${Python3_VERSION_MINOR}>'],
+    },
+    distclass=BinaryDistribution,
+    install_requires=[
+        'psutil',
+    ],
+)

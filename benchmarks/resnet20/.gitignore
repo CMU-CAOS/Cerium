@@ -1,0 +1,4 @@
+testFile/
+logs/
+outputs/
+*.pkl

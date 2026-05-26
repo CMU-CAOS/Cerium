@@ -1,0 +1,5 @@
+AllowShortIfStatementsOnASingleLine: true
+BasedOnStyle: llvm
+FixNamespaceComments: true
+ReflowComments: false
+

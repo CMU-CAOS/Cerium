@@ -1,0 +1,17 @@
+*log*
+*.dot*
+*.pkl
+**/__pycache__/**
+**/.venv/**
+.cerium
+outputs/**
+models/**
+bert_kernels/** 
+packed_params
+packed_params/** 
+
+bert_plaintexts/
+bert_ciphertexts/
+bert_outputs/
+
+*.pt

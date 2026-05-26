@@ -1,0 +1,11 @@
+# Generated files from the original example layout.
+/outputs/
+/logs/
+
+# Generated files from each tutorial's compile and run scripts.
+/*/outputs/
+/*/logs/
+
+# Python bytecode produced when running the examples.
+__pycache__/
+*.py[cod]

@@ -1,0 +1,252 @@
+<p align="center">
+  <img src="/Llama_Repo.jpeg" width="400"/>
+</p>
+
+<p align="center">
+        🤗 <a href="https://huggingface.co/meta-Llama"> Models on Hugging Face</a>&nbsp | <a href="https://ai.meta.com/blog/"> Blog</a>&nbsp |  <a href="https://llama.meta.com/">Website</a>&nbsp | <a href="https://llama.meta.com/get-started/">Get Started</a>&nbsp | <a href="https://github.com/meta-llama/llama-cookbook">Llama Cookbook</a>&nbsp
+<br>
+
+---
+
+# Cerium Llama 3.1-8B benchmark
+
+This directory is vendored into the Cerium artifact as the model and input
+preparation component for the encrypted Llama 3.1-8B benchmark. The artifact
+already contains the native checkpoint in `model_weights/Llama3.1-8B`, five
+prepared prompt/mask pairs in `llama_inputs/`, and the per-layer plaintext
+parameters in `params/`. No model download or Hugging Face token is required
+to run the supplied benchmark.
+
+## Prerequisites
+
+Build Cerium from the repository root before running this benchmark. The build
+container is also the supported runtime environment (CUDA 13.3 and Python
+3.10/3.12). The host must have an NVIDIA driver compatible with the container
+and the number of visible GPUs must match the selected configuration.
+
+```bash
+git submodule update --init
+docker build -t cerium/build-cu13.3:v1 docker/
+bash build_cerium.sh
+```
+
+Enter the build container from the repository root and activate its virtual
+environment. Substitute the container name if `CERIUM_IMAGE` or the checkout
+directory name was customized.
+
+```bash
+docker exec -it -w "$PWD" "CeriumBuild_cu13.3_$(id -un)_$(basename "$PWD")" bash
+source venv_cerium/bin/activate
+```
+
+The Llama helper scripts also require PyTorch, FairScale, Fire, and the other
+optional Llama dependencies. Install them once inside that environment:
+
+```bash
+python -m pip install './benchmarks/llama/llama_models[torch]'
+```
+
+## Run the supplied 1-GPU benchmark
+
+The checked-in artifacts include the compiled 32-layer, one-GPU program and
+the encrypted inputs for samples 0--4. From the repository root, run:
+
+```bash
+cd benchmarks/llama
+python llama_runner.py --gpus 1 --block_start 0 --num_blocks 32
+```
+
+The runner executes all five prepared samples. It expects
+`outputs/compiled/llama_1gpu_32blocks`, `llama_ciphertexts/`,
+`llama_plaintexts2/`, `llama_models/params/`, and
+`llama_models/llama_inputs/` to be present. These are artifact inputs; do not
+delete them before running. To execute a configuration with a different GPU
+count or block count, use a matching directory under `outputs/compiled/` and
+pass the corresponding values, for example:
+
+```bash
+python llama_runner.py --gpus 4 --block_start 0 --num_blocks 32
+```
+
+## Rebuild or regenerate artifacts (optional)
+
+Rebuilding is not needed for the supplied run and can take substantial time
+and GPU memory. From `benchmarks/llama`, compile the CUDA programs and then
+regenerate remappable plaintexts as needed:
+
+```bash
+bash make_llama.sh
+bash create_remapables.sh
+```
+
+`create_remapables.sh` defaults to 32 blocks and up to eight concurrent jobs;
+set `TOTAL_BLOCKS`, `BATCH_SIZE`, or `MAX_JOBS` to reduce the workload. The
+model-side helpers can regenerate prompt inputs and block parameters when
+necessary:
+
+```bash
+cd llama_models
+bash run_packed_inputs.sh --data_sample 0
+bash create_params.sh
+```
+
+`run_packed_inputs.sh` writes `llama_inputs/sample<N>_prompt.pkl` and
+`llama_inputs/sample<N>_attention_mask.pkl`. Its packed-input path accepts
+prompts of at most 128 tokens. `create_params.sh` generates parameters for all
+32 transformer blocks and is intentionally parallel; set `MAX_JOBS=1` on a
+memory-constrained system.
+
+# Llama Models
+
+Llama is an accessible, open large language model (LLM) designed for developers, researchers, and businesses to build, experiment, and responsibly scale their generative AI ideas. Part of a foundational system, it serves as a bedrock for innovation in the global community. A few key aspects:
+1. **Open access**: Easy accessibility to cutting-edge large language models, fostering collaboration and advancements among developers, researchers, and organizations
+2. **Broad ecosystem**: Llama models have been downloaded hundreds of millions of times, there are thousands of community projects built on Llama and platform support is broad from cloud providers to startups - the world is building with Llama!
+3. **Trust & safety**: Llama models are part of a comprehensive approach to trust and safety, releasing models and tools that are designed to enable community collaboration and encourage the standardization of the development and usage of trust and safety tools for generative AI
+
+Our mission is to empower individuals and industry through this opportunity while fostering an environment of discovery and ethical AI advancements. The model weights are licensed for researchers and commercial entities, upholding the principles of openness.
+
+## Llama Models
+
+[![PyPI - Downloads](https://img.shields.io/pypi/dm/llama-models)](https://pypi.org/project/llama-models/)
+[![Discord](https://img.shields.io/discord/1257833999603335178)](https://discord.gg/TZAAYNVtrU)
+
+|  **Model** | **Launch date** | **Model sizes** | **Context Length** | **Tokenizer** | **Acceptable use policy**  |  **License** | **Model Card** |
+| :----: | :----: | :----: | :----:|:----:|:----:|:----:|:----:|
+| Llama 2 | 7/18/2023 | 7B, 13B, 70B | 4K | Sentencepiece | [Use Policy](models/llama2/USE_POLICY.md) | [License](models/llama2/LICENSE) | [Model Card](models/llama2/MODEL_CARD.md) |
+| Llama 3 | 4/18/2024 | 8B, 70B | 8K | TikToken-based | [Use Policy](models/llama3/USE_POLICY.md) | [License](models/llama3/LICENSE) | [Model Card](models/llama3/MODEL_CARD.md) |
+| Llama 3.1 | 7/23/2024 | 8B, 70B, 405B | 128K | TikToken-based | [Use Policy](models/llama3_1/USE_POLICY.md) | [License](models/llama3_1/LICENSE) | [Model Card](models/llama3_1/MODEL_CARD.md) |
+| Llama 3.2 | 9/25/2024 | 1B, 3B | 128K | TikToken-based | [Use Policy](models/llama3_2/USE_POLICY.md) | [License](models/llama3_2/LICENSE) | [Model Card](models/llama3_2/MODEL_CARD.md) |
+| Llama 3.2-Vision | 9/25/2024 | 11B, 90B | 128K | TikToken-based | [Use Policy](models/llama3_2/USE_POLICY.md) | [License](models/llama3_2/LICENSE) | [Model Card](models/llama3_2/MODEL_CARD_VISION.md) |
+| Llama 3.3 | 12/04/2024 | 70B | 128K | TikToken-based | [Use Policy](models/llama3_3/USE_POLICY.md) | [License](models/llama3_3/LICENSE) | [Model Card](models/llama3_3/MODEL_CARD.md) |
+| Llama 4 | 4/5/2025 | Scout-17B-16E, Maverick-17B-128E | 10M, 1M | TikToken-based | [Use Policy](models/llama4/USE_POLICY.md) | [License](models/llama4/LICENSE) | [Model Card](models/llama4/MODEL_CARD.md) |
+
+## Download
+
+To download the model weights and tokenizer:
+
+1. Visit the [Meta Llama website](https://llama.meta.com/llama-downloads/).
+2. Read and accept the license.
+3. Once your request is approved you will receive a signed URL via email.
+4. Install the [Llama CLI](https://github.com/meta-llama/llama-stack): `pip install llama-stack`. (**<-- Start Here if you have received an email already.**)
+5. Run `llama model list` to show the latest available models and determine the model ID you wish to download. **NOTE**:
+If you want older versions of models, run `llama model list --show-all` to show all the available Llama models.
+
+6. Run: `llama download --source meta --model-id CHOSEN_MODEL_ID`
+7. Pass the URL provided when prompted to start the download.
+
+Remember that the links expire after 24 hours and a certain amount of downloads. You can always re-request a link if you start seeing errors such as `403: Forbidden`.
+
+## Running the models
+
+In order to run the models, you will need to install dependencies after checking out the repository.
+
+```bash
+# Run this within a suitable Python environment (uv, conda, or virtualenv)
+pip install .[torch]
+```
+
+Example scripts are available in `models/{ llama3, llama4 }/scripts/` sub-directory. Note that the Llama4 series of models require at least 4 GPUs to run inference at full (bf16) precision.
+
+```bash
+#!/bin/bash
+
+NGPUS=4
+CHECKPOINT_DIR=~/.llama/checkpoints/Llama-4-Scout-17B-16E-Instruct
+PYTHONPATH=$(git rev-parse --show-toplevel) \
+  torchrun --nproc_per_node=$NGPUS \
+  -m models.llama4.scripts.chat_completion $CHECKPOINT_DIR \
+  --world_size $NGPUS
+```
+
+The above script should be used with an Instruct (Chat) model. For a Base model, update the `CHECKPOINT_DIR` path and use the script `models.llama4.scripts.completion`.
+
+
+## Running inference with FP8 and Int4 Quantization
+
+You can reduce the memory footprint of the models at the cost of minimal loss in accuracy by running inference with FP8 or Int4 quantization. Use the `--quantization-mode` flag to specify the quantization mode. There are two modes:
+- `fp8_mixed`: Mixed precision inference with FP8 for some weights and bfloat16 for activations.
+- `int4_mixed`: Mixed precision inference with Int4 for some weights and bfloat16 for activations.
+
+Using FP8, running Llama-4-Scout-17B-16E-Instruct requires 2 GPUs with 80GB of memory. Using Int4, you need a single GPU with 80GB of memory.
+
+```bash
+MODE=fp8_mixed  # or int4_mixed
+if [ $MODE == "fp8_mixed" ]; then
+  NGPUS=2
+else
+  NGPUS=1
+fi
+CHECKPOINT_DIR=~/.llama/checkpoints/Llama-4-Scout-17B-16E-Instruct
+PYTHONPATH=$(git rev-parse --show-toplevel) \
+  torchrun --nproc_per_node=$NGPUS \
+  -m models.llama4.scripts.chat_completion $CHECKPOINT_DIR \
+  --world_size $NGPUS \
+  --quantization-mode $MODE
+```
+
+
+For more flexibility in running inference (including using other providers), please see the [`Llama Stack`](https://github.com/meta-llama/llama-stack) toolset.
+
+
+## Access to Hugging Face
+
+We also provide downloads on [Hugging Face](https://huggingface.co/meta-llama), in both transformers and native `llama4` formats. To download the weights from Hugging Face, please follow these steps:
+
+- Visit one of the repos, for example [meta-llama/Llama-4-Scout-17B-16E](https://huggingface.co/meta-llama/Llama-4-Scout-17B-16E).
+- Read and accept the license. Once your request is approved, you'll be granted access to all Llama 3.1 models as well as previous versions. Note that requests used to take up to one hour to get processed.
+- To download the original native weights to use with this repo, click on the "Files and versions" tab and download the contents of the `original` folder. You can also download them from the command line if you `pip install huggingface-hub`:
+
+```bash
+huggingface-cli download meta-llama/Llama-4-Scout-17B-16E-Instruct-Original --local-dir meta-llama/Llama-4-Scout-17B-16E-Instruct-Original
+```
+
+- To use with transformers, the following snippet will download and cache the weights:
+
+  ```python
+  # inference.py
+  from transformers import AutoTokenizer, Llama4ForConditionalGeneration
+  import torch
+
+  model_id = "meta-llama/Llama-4-Scout-17B-16E-Instruct"
+
+  tokenizer = AutoTokenizer.from_pretrained(model_id)
+
+  messages = [
+      {"role": "user", "content": "Who are you?"},
+  ]
+  inputs = tokenizer.apply_chat_template(
+      messages, add_generation_prompt=True, return_tensors="pt", return_dict=True
+  )
+
+  model = Llama4ForConditionalGeneration.from_pretrained(
+      model_id, device_map="auto", torch_dtype=torch.bfloat16
+  )
+
+  outputs = model.generate(**inputs.to(model.device), max_new_tokens=100)
+  outputs = tokenizer.batch_decode(outputs[:, inputs["input_ids"].shape[-1] :])
+  print(outputs[0])
+  ```
+  ```bash
+   torchrun --nnodes=1 --nproc_per_node=8 inference.py
+   ```
+
+## Installations
+
+You can install this repository as a [package](https://pypi.org/project/llama-models/) by just doing `pip install llama-models`
+
+## Responsible Use
+
+Llama models are a new technology that carries potential risks with use. Testing conducted to date has not — and could not — cover all scenarios.
+To help developers address these risks, we have created the [Responsible Use Guide](https://ai.meta.com/static-resource/responsible-use-guide/).
+
+## Issues
+
+Please report any software “bug” or other problems with the models through one of the following means:
+- Reporting issues with the model: [https://github.com/meta-llama/llama-models/issues](https://github.com/meta-llama/llama-models/issues)
+- Reporting risky content generated by the model: [developers.facebook.com/llama_output_feedback](http://developers.facebook.com/llama_output_feedback)
+- Reporting bugs and security concerns: [facebook.com/whitehat/info](http://facebook.com/whitehat/info)
+
+
+## Questions
+
+For common questions, the FAQ can be found [here](https://llama.meta.com/faq), which will be updated over time as new questions arise.

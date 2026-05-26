@@ -1,0 +1,15 @@
+# Ignore all files that include *.dot*
+*.dot*
+
+# Ignore Python cache files
+__pycache__/
+*.pyc
+
+# Ignore shared object files
+*.so
+
+# Ignore everything under the outputs directory
+outputs/
+outputs*/
+
+logs/

@@ -1,0 +1,16 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 Siddharth Jayashankar. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+Primes = [204865537, 205651969, 206307329, 207880193, 209059841, 210370561, 211025921, 211812353, 214171649, 215482369, 215744513, 216137729, 216924161, 217317377, 218628097, 219676673, 220594177, 221249537, 222035969, 222167041, 222953473, 223215617, 224002049, 224133121, 225574913, 228065281, 228458497, 228720641, 230424577, 230686721, 230817793, 231473153, 232390657, 232652801, 234356737, 235798529, 236584961, 236716033, 239337473, 239861761, 240648193, 241827841, 244842497, 244973569, 245235713, 245760001, 246415361, 249561089, 253100033, 253493249, 254279681, 256376833, 256770049, 257949697, 258605057, 260571137, 260702209, 261488641, 261881857, 263323649, 263454721, 264634369, 265420801, 268042241]

@@ -1,0 +1,20 @@
+.vscode
+/.*/
+/build/
+/dist/
+cerium.egg-info/
+__pycache__/
+
+# In-source build files
+CMakeCache.txt
+cmake_install.cmake
+CPackConfig.cmake
+CPackSourceConfig.cmake
+compile_commands.json
+CMakeFiles/
+*.a
+*.so
+*.whl
+err
+
+venv_cerium/
